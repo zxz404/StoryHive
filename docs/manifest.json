@@ -1,0 +1,54 @@
+{
+  "name": "StoryHive",
+  "short_name": "StoryHive",
+  "description": "Platform untuk berbagi cerita dan pengalaman dengan komunitas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#211832",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/images/Logo2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/Logo3.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshots/home-mobile.png",
+      "sizes": "399x802",
+      "type": "image/png",
+      "platform": "narrow"
+    },
+    {
+      "src": "/images/screenshots/home-dekstop.png",
+      "sizes": "1920x1200",
+      "type": "image/png",
+      "form_factor": "wide"     
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tambah Cerita Baru",
+      "short_name": "Tambah Cerita",
+      "description": "Buat dan bagikan cerita baru",
+      "url": "/#/add-s",
+      "icons": [
+        {
+          "src": "/images/faviconn.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
