@@ -19,52 +19,70 @@ class FavPage {
         const section = document.createElement('section');
         section.className = 'pg fav-pg';
         
-      
         section.innerHTML = `
             <div class="fav-page">
                 <div class="page-hdr">
-                    <h1> Cerita Favorit</h1>
-                    <p>Kelola cerita yang Anda tandai sebagai fav</p>
+                    <h1>💖 Cerita Favorit</h1>
+                    <p class="page-subtitle">Kelola cerita yang Anda tandai sebagai favorit</p>
                 </div>
 
                 <div class="sync-sts" id="syncSts"></div>
 
-                <div class="fav-ctrl">
-                    <div class="srch-box">
-                        <input type="text" id="srchFav" placeholder="Cari cerita favoritmu" 
-                               value="${this.curFilt.srch}">
-                        <span class="srch-ico">🔍</span>
+                <section class="search-section" aria-labelledby="search-title">
+                    <h2 id="search-title" class="visually-hidden">Pencarian dan Filter</h2>
+                    <div class="fav-ctrl">
+                        <div class="srch-box">
+                            <label for="srchFav" class="srch-label visually-hidden">
+                                Cari cerita favorit
+                            </label>
+                            <input 
+                                type="text" 
+                                id="srchFav" 
+                                name="search"
+                                placeholder="Cari cerita favorit..." 
+                                aria-label="Cari cerita favorit berdasarkan judul atau deskripsi"
+                                aria-describedby="search-help"
+                                value="${this.curFilt.srch}"
+                            >
+                            <span class="srch-ico" aria-hidden="true">🔍</span>
+                            <span id="search-help" class="visually-hidden">
+                                Ketik untuk mencari cerita favorit berdasarkan judul atau deskripsi
+                            </span>
+                        </div>
+
+                        <div class="fltr-ctrl">
+                            <select id="sortBy" aria-label="Urutkan berdasarkan">
+                                <option value="createdAt" ${this.curFilt.sort === 'createdAt' ? 'selected' : ''}>By Tanggal</option>
+                                <option value="name" ${this.curFilt.sort === 'name' ? 'selected' : ''}>By Nama</option>
+                            </select>
+
+                            <select id="sortOrd" aria-label="Urutan sortir">
+                                <option value="desc" ${this.curFilt.order === 'desc' ? 'selected' : ''}>Terbaru</option>
+                                <option value="asc" ${this.curFilt.order === 'asc' ? 'selected' : ''}>Terlama</option>
+                            </select>
+
+                            <select id="fltrOwn" aria-label="Filter berdasarkan penulis">
+                                <option value="">All Penulis</option>
+                                ${this.uniqOwners.map(owner => 
+                                    `<option value="${owner}" ${this.curFilt.owner === owner ? 'selected' : ''}>${owner}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="favorites-section" aria-labelledby="favorites-title">
+                    <h2 id="favorites-title" class="visually-hidden">Daftar Favorit</h2>
+                    <div class="fav-list" id="favList">
+                        <div class="loading">Memuat favorit...</div>
                     </div>
 
-                    <div class="fltr-ctrl">
-                        <select id="sortBy">
-                            <option value="createdAt" ${this.curFilt.sort === 'createdAt' ? 'selected' : ''}>By Tanggal</option>
-                            <option value="name" ${this.curFilt.sort === 'name' ? 'selected' : ''}>By Nama</option>
-                        </select>
-
-                        <select id="sortOrd">
-                            <option value="desc" ${this.curFilt.order === 'desc' ? 'selected' : ''}>Terbaru</option>
-                            <option value="asc" ${this.curFilt.order === 'asc' ? 'selected' : ''}>Terlama</option>
-                        </select>
-
-                        <select id="fltrOwn">
-                            <option value="">All Penulis</option>
-                            ${this.uniqOwners.map(owner => 
-                                `<option value="${owner}" ${this.curFilt.owner === owner ? 'selected' : ''}>${owner}</option>`
-                            ).join('')}
-                        </select>
+                    <div class="empty-st" id="emptySt" style="display: none;">
+                        <div class="empty-ico">📚</div>
+                        <h3>Belum ada cerita favorit</h3>
+                        <p>Tambahkan cerita ke favorit untuk melihat di sini</p>
                     </div>
-                </div>
-
-                <div class="fav-list" id="favList">
-                    <div class="loading">Loading fav...</div>
-                </div>
-
-                <div class="empty-st" id="emptySt" style="display: none;">
-                    <div class="empty-ico">📚</div>
-                    <h3>Belum ada cerita fav</h3>
-                    <p>Tambahkan cerita ke fav untuk melihat di sini</p>
-                </div>
+                </section>
             </div>
         `;
 
@@ -73,7 +91,6 @@ class FavPage {
     }
 
     async init() {
-       
         if (!this.element) {
             this.createView();
         }
@@ -94,7 +111,7 @@ class FavPage {
             this.updateSyncSts();
         } catch (error) {
             console.error('Error load fav:', error);
-            this.showErr('Gagal load fav');
+            this.showErr('Gagal memuat favorit');
         }
     }
 
@@ -115,7 +132,7 @@ class FavPage {
         emptySt.style.display = 'none';
 
         favList.innerHTML = this.items.map(story => `
-            <div class="fav-item" data-id="${story.id}">
+            <article class="fav-item" data-id="${story.id}">
                 <div class="item-img">
                     <img src="${story.photoUrl}" 
                          alt="${story.name || 'Story'}" 
@@ -125,7 +142,7 @@ class FavPage {
                 
                 <div class="item-cont">
                     <h3 class="item-title">${story.name || 'No Title'}</h3>
-                    <p class="item-desc">${story.description || 'No desc'}</p>
+                    <p class="item-desc">${story.description || 'No description'}</p>
                     
                     <div class="item-meta">
                         <span class="item-own">👤 ${story.owner?.name || 'Unknown'}</span>
@@ -134,11 +151,11 @@ class FavPage {
                 </div>
                 
                 <div class="item-act">
-                    <button class="btn-rmv" data-id="${story.id}" title="Hapus fav">
+                    <button class="btn-rmv" data-id="${story.id}" title="Hapus dari favorit" aria-label="Hapus dari favorit">
                         ❌
                     </button>
                 </div>
-            </div>
+            </article>
         `).join('');
 
         this.updateOwnFltr();
@@ -171,7 +188,7 @@ class FavPage {
                 <span class="sts-ind"></span>
                 <span class="sts-txt">
                     ${sts.isOnline ? '🟢 Online' : '🔴 Offline'} | 
-                    ${sts.pendingSyncCount} pending |
+                    ${sts.pendingSyncCount} pending sync |
                     ${sts.totalFav} favorit
                 </span>
             </div>
@@ -181,7 +198,6 @@ class FavPage {
     setupEvt() {
         if (!this.element) return;
 
-     
         const srchFav = this.element.querySelector('#srchFav');
         if (srchFav) {
             srchFav.addEventListener('input', (e) => {
@@ -190,7 +206,6 @@ class FavPage {
             });
         }
 
-     
         const sortBy = this.element.querySelector('#sortBy');
         if (sortBy) {
             sortBy.addEventListener('change', (e) => {
@@ -207,7 +222,6 @@ class FavPage {
             });
         }
 
-     
         const fltrOwn = this.element.querySelector('#fltrOwn');
         if (fltrOwn) {
             fltrOwn.addEventListener('change', (e) => {
@@ -216,7 +230,6 @@ class FavPage {
             });
         }
 
-      
         this.element.addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-rmv')) {
                 const storyId = e.target.dataset.id;
@@ -227,23 +240,22 @@ class FavPage {
 
     setupSyncEvt() {
         window.addEventListener('storySynced', (e) => {
-            this.showMsg(`Sync success!`, 'success');
+            this.showMsg(`Berhasil sinkronisasi!`, 'success');
             this.loadFav();
         });
 
         window.addEventListener('syncCompleted', (e) => {
-            this.showMsg(`All offline stories synced!`, 'success');
+            this.showMsg(`Semua cerita offline berhasil disinkronisasi!`, 'success');
             this.loadFav();
         });
 
         window.addEventListener('storySavedOffline', (e) => {
-            this.showMsg(`Saved offline, will sync later`, 'info');
+            this.showMsg(`Disimpan offline, akan sinkron nanti`, 'info');
         });
     }
 
     async rmvFav(storyId) {
         if (typeof Swal !== 'undefined') {
-           
             const result = await Swal.fire({
                 title: 'Hapus dari Favorit?',
                 text: "Cerita akan dihapus dari daftar favorit Anda",
@@ -253,9 +265,8 @@ class FavPage {
                 cancelButtonColor: '#64748b',
                 confirmButtonText: 'Ya, Hapus',
                 cancelButtonText: 'Batal'
-              
             });
-    
+
             if (result.isConfirmed) {
                 try {
                     await idxDB.rmvFav(storyId);
@@ -267,20 +278,33 @@ class FavPage {
                 }
             }
         } else {
-          
-            if (confirm('Hapus dari fav?')) {
+            if (confirm('Hapus dari favorit?')) {
                 try {
                     await idxDB.rmvFav(storyId);
-                    this.showMsg('Deleted from fav', 'success');
+                    this.showMsg('Berhasil dihapus dari favorit', 'success');
                     await this.loadFav();
                 } catch (error) {
                     console.error('Error remove fav:', error);
-                    this.showMsg('Gagal hapus fav', 'error');
+                    this.showMsg('Gagal menghapus dari favorit', 'error');
                 }
             }
         }
     }
-    
+
+    debLoadFav = this.debounce(() => this.loadFav(), 300);
+
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
     showMsg(message, type = 'info') {
         if (typeof Swal !== 'undefined') {
             const Toast = Swal.mixin({
@@ -289,13 +313,12 @@ class FavPage {
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
-              
                 didOpen: (toast) => {
                     toast.addEventListener('mouseenter', Swal.stopTimer);
                     toast.addEventListener('mouseleave', Swal.resumeTimer);
                 }
             });
-    
+
             Toast.fire({
                 icon: type,
                 title: message
@@ -310,7 +333,6 @@ class FavPage {
     }
 
     destroy() {
-       
     }
 }
 

@@ -158,23 +158,27 @@ class StoryAPI {
   }
 }
 
-
 const updatePushSubscription = async (subscription, action = 'subscribe') => {
   try {
     console.log(`Sending ${action} request to server:`, subscription);
     
-    const response = await fetch(`${API_BASE_URL}/push/subscriptions`, {
+    const subscriptionJson = subscription.toJSON ? subscription.toJSON() : subscription;
+    
+    const requestBody = {
+      endpoint: subscriptionJson.endpoint,
+      keys: {
+        p256dh: subscriptionJson.keys.p256dh,
+        auth: subscriptionJson.keys.auth
+      }
+    };
+
+    const response = await fetch(`${API_BASE_URL}/notifications/subscribe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
-      body: JSON.stringify({ 
-        subscription, 
-        action,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString()
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
@@ -188,7 +192,6 @@ const updatePushSubscription = async (subscription, action = 'subscribe') => {
   } catch (error) {
     console.error(`Error ${action}ing push subscription:`, error);
     
-   
     if (error.message.includes('Failed to fetch')) {
       console.log('Using fallback - simulating successful subscription');
       return { ok: true, status: 200 };
@@ -202,7 +205,7 @@ const sendTestNotification = async (notificationData) => {
   try {
     console.log('Sending test notification:', notificationData);
     
-    const response = await fetch(`${API_BASE_URL}/push/test`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/test`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -226,7 +229,6 @@ const sendTestNotification = async (notificationData) => {
   } catch (error) {
     console.error('Error sending test notification:', error);
     
-   
     if (error.message.includes('Failed to fetch')) {
       console.log('Using fallback - simulating successful test notification');
       return { ok: true, status: 200 };
@@ -238,7 +240,7 @@ const sendTestNotification = async (notificationData) => {
 
 const getNotificationSettings = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/push/settings`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/settings`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -251,7 +253,6 @@ const getNotificationSettings = async () => {
     return response.json();
   } catch (error) {
     console.error('Error getting notification settings:', error);
-    
     
     return {
       enabled: true,
@@ -268,7 +269,7 @@ const getNotificationSettings = async () => {
 
 const updateNotificationSettings = async (settings) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/push/settings`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/settings`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -285,14 +286,13 @@ const updateNotificationSettings = async (settings) => {
   } catch (error) {
     console.error('Error updating notification settings:', error);
     
-  
     return { success: true, settings };
   }
 };
 
 const getPushSubscriptions = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/push/subscriptions`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/subscriptions`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -306,14 +306,13 @@ const getPushSubscriptions = async () => {
   } catch (error) {
     console.error('Error getting push subscriptions:', error);
     
-   
     return { subscriptions: [] };
   }
 };
 
 const deletePushSubscription = async (subscriptionId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/push/subscriptions/${subscriptionId}`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/subscriptions/${subscriptionId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -328,11 +327,9 @@ const deletePushSubscription = async (subscriptionId) => {
   } catch (error) {
     console.error('Error deleting push subscription:', error);
     
-   
     return { success: true };
   }
 };
-
 
 const subscribeToPushNotifications = async (subscription) => {
   return updatePushSubscription(subscription, 'subscribe');
@@ -341,7 +338,6 @@ const subscribeToPushNotifications = async (subscription) => {
 const testPushNotification = async (title, message) => {
   return sendTestNotification({ title, body: message, url: '#/home' });
 };
-
 
 export { 
   subscribeToPushNotifications, 

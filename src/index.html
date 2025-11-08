@@ -4,17 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StoryHive - Platform Berbagi Cerita</title>
+  
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#2563eb">
   <meta name="description" content="Platform untuk berbagi cerita dan pengalaman dengan komunitas">
+  
   <link rel="icon" type="image/png" href="/images/Logo.png">
+  <link rel="apple-touch-icon" href="/images/Logo.png">
+  
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="StoryHive">
+  
   <link rel="stylesheet" href="./styles/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
   <div id="app">
     <header class="hdr">
       <nav class="nav">
-        <!-- nav JavaScript -->
       </nav>
     </header>
     
@@ -26,25 +35,57 @@
       </div>
     </main>
   </div>
-
-
+  <script type="module" src="./scripts/pages/app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <script>
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+    
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+    });
+    
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        console.log('Registering Service Worker for PWA...');
-        navigator.serviceWorker.register('/sw.js')
+        const swUrl = './sw.js';
+        
+        navigator.serviceWorker.register(swUrl)
           .then(registration => {
-            console.log('Service Worker registered successfully:', registration);
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+            });
           })
           .catch(error => {
             console.log('Service Worker registration failed:', error);
           });
+          
+        navigator.serviceWorker.ready.then(registration => {
+          setInterval(() => {
+            registration.update();
+          }, 60 * 60 * 1000);
+        });
       });
     }
+    
+    window.addEventListener('online', () => {
+      document.body.classList.remove('offline');
+    });
+    
+    window.addEventListener('offline', () => {
+      document.body.classList.add('offline');
+    });
+    
+    if (!navigator.onLine) {
+      document.body.classList.add('offline');
+    }
   </script>
+  
   <script type="module" src="./scripts/pages/app.js"></script>
 </body>
 </html>
