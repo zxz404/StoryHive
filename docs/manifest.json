@@ -8,47 +8,48 @@
   "theme_color": "#2563eb",
   "orientation": "portrait",
   "scope": "/",
+  "categories": ["social", "entertainment"],
+  "lang": "id-ID",
+  "dir": "ltr",
   "icons": [
     {
-      "src": "/images/Logo2.png",
+      "src": "./images/Logo3.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/images/Logo3.png",
+      "src": "./images/Logo2.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./images/Logo3.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./images/Logo2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "/images/screenshots/home-mobile.png",
+      "src": "./images/screenshots/home-mobile.png",
       "sizes": "399x802",
       "type": "image/png",
-      "platform": "narrow"
+      "platform": "narrow",
+      "form_factor": "narrow"
     },
     {
-      "src": "/images/screenshots/home-dekstop.png",
+      "src": "./images/screenshots/home-desktop.png",
       "sizes": "1920x1200",
       "type": "image/png",
-      "form_factor": "wide"     
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Tambah Cerita Baru",
-      "short_name": "Tambah Cerita",
-      "description": "Buat dan bagikan cerita baru",
-      "url": "/#/add-s",
-      "icons": [
-        {
-          "src": "/images/faviconn.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
+      "form_factor": "wide"
     }
   ]
 }
